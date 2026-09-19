@@ -65,6 +65,7 @@ static Rec *rec_new(int id, const char *name) {
     return r;
 }
 
+//by_id 먼저, 그 다음에 by_name을 만듦.
 static void directory_add(Directory *d, int id, const char *name) {
     Rec *r = rec_new(id, name);
     d->by_id[d->count]   = r;
@@ -104,9 +105,9 @@ static void directory_free(Directory *d) {
         free(d->by_id[i]->name);
         free(d->by_id[i]);                 
     }
-    for (int i = 0; i < d->count; i++) {
-        free(d->by_name[i]);               
-    }
+    // for (int i = 0; i < d->count; i++) {
+    //     free(d->by_name[i]);               
+    // }
     d->count = 0;
 }
 
