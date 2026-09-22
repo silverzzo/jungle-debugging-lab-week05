@@ -46,10 +46,21 @@ static char *skip_ws(char *s) {
 }
 
 static void parse_headers(char *text, Headers *h) {
+
+    //text \n으로 나눔
     for (char *line = strtok(text, "\n"); line != NULL; line = strtok(NULL, "\n")) {
+        //: 위치 찾기
         char *colon = strchr(line, ':');   
 
-        *colon = '\0';                    
+        // 해당하는 콜론 위치에 \0 쓰기
+        // *colon = '\0'; 원본
+        
+        // colon이 널일때 처리
+        if(colon==NULL){
+            continue; // 아래 건너뛰고 for문의 증감식으로 이동
+        }
+        //
+        *colon = '\0';
         char *key = line;
         char *val = skip_ws(colon + 1);
 
