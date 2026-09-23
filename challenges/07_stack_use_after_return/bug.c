@@ -48,7 +48,7 @@ typedef struct {
 
 /* 결과를 뷰에 채운다(포인터를 함수 경계 너머로 옮겨 -Wdangling 을 회피하는 형태) */
 static void view_set(LineView *out, char **arr, int n) {
-    out->lines = arr;
+    out->lines = arr; //parts 주소 복사
     out->count = n;
 }
 
@@ -59,11 +59,16 @@ static void split_lines(LineView *out, char *text) {
     * 따라서, strtok은 원본 버퍼를 제자리에서 수정한다. 
     */
     for (char *ln = strtok(text, "\n"); ln && n < MAX_LINES; ln = strtok(NULL, "\n"))
-        parts[n++] = ln;
+        parts[n++] = ln; 
 
-    view_set(out, parts, n);      
-
-    /* TODO 상기 코드를 수정하여 결과를 호출자가 준 out 에 직접 채운다(값 반환 아님, 지역 주소 반환 아님). */       
+    char** heap_parts=malloc(sizeof(char*)*n);
+    if(!heap_parts){
+        out->count = 0;
+        return;
+    }
+    memcpy(heap_parts,parts,sizeof(char*) * n);
+    view_set(out, heap_parts, n);      
+     
 }
 
 /* split_lines 가 쓰던 스택 프레임을, 같은 모양(char*[8])의 지역 배열로 덮는다.
@@ -74,7 +79,6 @@ static void warm_stack(void) {
         scratch[i] = (char *)0x4141414141414141ULL;   /* 매핑되지 않은 주소 */
     __asm__ volatile("" :: "r"(scratch) : "memory");   /* 최적화 제거 방지 */
 }
-
 int main(void) {
     char text[] = "alpha\nbeta\ngamma";
 
@@ -87,5 +91,7 @@ int main(void) {
         checksum += (unsigned char)v.lines[i][0];
 
     printf("lines = %d, checksum = %ld\n", v.count, checksum);
+
+    free(v.lines);
     return 0;
 }
