@@ -76,7 +76,9 @@ static int **make_matrix(void) {
     int **rows = malloc(ROWS * sizeof(int *));
     if (!rows) { perror("malloc"); exit(1); }
 
-    for (int i = 0; i < ROWS; i += 2) {
+    //for (int i = 0; i < ROWS; i += 2) { //원본!
+    for (int i = 0; i < ROWS; i += 1) {   //모든 배열에 초기화 가능하도록 2씩 증가하던 것 1로 수정
+
         int *r = malloc(COLS * sizeof(int));
         for (int j = 0; j < COLS; j++) r[j] = i * COLS + j;
         rows[i] = r;
@@ -104,7 +106,8 @@ int main(void) {
 
     printf("sum = %ld\n", s);
 
-    for (int i = 0; i < ROWS; i += 2) free(rows[i]);
+    //for (int i = 0; i < ROWS; i += 2) free(rows[i]); //원본!
+    for (int i = 0; i < ROWS; i += 1) free(rows[i]);   //할당받는 거에 맞춰서 프리도 맞춰서 수정   
     free(rows);
     return 0;
 }
