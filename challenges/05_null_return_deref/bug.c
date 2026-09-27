@@ -64,8 +64,17 @@ static void expand(const Config *c, const char *tmpl, char *out, size_t outcap) 
             memcpy(key, p + 2, kl);
             key[kl] = '\0';
 
-            const char *v = cfg_get(c, key);      
-            size_t vl = strlen(v);                 
+            const char *v = cfg_get(c, key);   
+            // 키 없을 때 빈 문자열로 치환해줌
+            if(v==NULL){
+                v="";
+            } 
+            //
+            size_t vl = strlen(v);              
+
+            // const char *v = cfg_get(c, key); //원본   
+            // size_t vl = strlen(v);           //key 없을 때 방어해주는 로직 누락되어 있었음
+
             if (o + vl < outcap) { memcpy(out + o, v, vl); o += vl; }
             p = end + 1;
         } else {
@@ -95,7 +104,11 @@ int main(void) {
      *   tip 2. cfg_get("path") 는 등록되지 않은 키라 NULL 을 돌려준다.
      *   생각해보기: 설정에 없는 키(${path})를 만나면 expand() 는 어떤 값을 받게 되고,
      *               그 값을 검사 없이 strlen/복사에 쓰면 무슨 일이 벌어질까?
-     *               (힌트: "값이 없다"는 NULL 이지 빈 문자열 ""이 아니다) */
+     *               (힌트: "값이 없다"는 NULL 이지 빈 문자열 ""이 아니다) 
+     *              ->없는 키를 만나면 expand()는 NULL을 받고, 검사 없이 strlen에 쓰면 NULL을 역참조해서 크래시한다. 
+     *                 =>  NULL을 빈 문자열 등으로 바꾸거나 에러 처리 필요
+     */
+
     const char *tmpl = "http://${host}:${port}/${path}/index.html";
     char out[256];
 
