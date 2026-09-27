@@ -38,7 +38,9 @@
 /* 필요한 총 바이트 수 = 모든 조각 길이 합 + 종료 문자 1 */
 static size_t joined_size(const char *const *parts, int n) {
     size_t total = 1;                        /* '\0' 자리 */
-    for (int i = 0; i < n - 1; i++) {        
+//    for (int i = 0; i < n - 1; i++) {      //원본 
+
+    for (int i = 0; i < n ; i++) {           //join()의 복사 루프와 동일한 범위를 순회하도록 수정
         total += strlen(parts[i]);
     }
     return total;
@@ -65,7 +67,7 @@ int main(void) {
     body[sizeof body - 1] = '\0';
 
     const char *parts[] = { "GET ", "/index.html", " HTTP/1.1\r\n\r\n", body };
-    int n = (int)(sizeof(parts) / sizeof(parts[0]));
+    int n = (int)(sizeof(parts) / sizeof(parts[0])); //배열의 크기 구함
 
     char *msg = join(parts, n);              /* 복사 중 힙 오버플로 → 크래시 */
 
