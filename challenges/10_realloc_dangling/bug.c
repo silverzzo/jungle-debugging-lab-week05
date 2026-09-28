@@ -60,14 +60,24 @@ static void eb_init(EditBuffer *e) {
     if (!e->clipboard) { perror("malloc"); exit(1); }
 }
 
-static void eb_snapshot(EditBuffer *e) {
-    if (e->undo_n < MAX_UNDO) e->undo[e->undo_n++] = e->data;
+// static void eb_snapshot(EditBuffer *e) {
+//     if (e->undo_n < MAX_UNDO) e->undo[e->undo_n++] = e->data;
+// }
+static int eb_snapshot(EditBuffer *e) {
+    if (e->undo_n >= MAX_UNDO)
+        return;
+
+    int *p = malloc(e->len* sizeof(int));
+    if (p==NULL) { perror("malloc"); exit(1); }
+
+    memcpy(p, e->data, e->len * sizeof(int));
+    e->undo[e->undo_n++] =p;
 }
 
 static void eb_grow(EditBuffer *e, size_t need) {
     size_t nc = e->cap;
     while (nc < need) nc *= 2;
-    int *p = realloc(e->data, nc * sizeof(int));   
+    int *p = realloc(e->data, nc * sizeof(int));   //e->data가 가리키고 있는 기존 메모리 공간을 int가 nc개 들어갈 수 있는 크기로 재할당
     if (!p) { perror("realloc"); free(e->data); exit(1); }
     e->data = p;                                   
     e->cap = nc;
